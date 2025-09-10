@@ -6,7 +6,14 @@ from nltk.sentiment import SentimentIntensityAnalyzer
 english_stopwords = stopwords.words("english")
 analyzer = SentimentIntensityAnalyzer()
 
-def get_levels(entry):
+
+def get_sentences(entry):
+    pattern = re.compile(r'[^.!?]+[.!?]')
+    sentences = re.findall(pattern, entry)
+    return sentences
+
+
+def get_overall_level(entry):
     scores_list = []
     pattern = re.compile(r'[A-Za-z]+')
     words = re.findall(pattern, entry)
@@ -29,4 +36,13 @@ def get_levels(entry):
     scores = analyzer.polarity_scores(entry)
     scores_list.append(scores)
     
+    return scores_list
+
+
+def get_sentence_levels(entry):
+    sentences = get_sentences(entry)
+    scores_list = []
+    for sentence in sentences:
+        score = analyzer.polarity_scores(sentence)
+        scores_list.append(score)
     return scores_list
