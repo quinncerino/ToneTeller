@@ -3,7 +3,7 @@ import plotly.express as px
 from backend import get_overall_level, get_sentence_levels
 
 st.title("ToneTeller")
-st.header("I will analyze the tone of your text")
+st.header("I will analyze the tone of your text 🔮✨")
 
 text = st.text_area("Enter text here: ")
 
