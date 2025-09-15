@@ -1,7 +1,7 @@
 import re
-import nltk
 from nltk.corpus import stopwords
 from nltk.sentiment import SentimentIntensityAnalyzer
+from random import choice
 
 english_stopwords = stopwords.words("english")
 analyzer = SentimentIntensityAnalyzer()
@@ -13,8 +13,7 @@ def get_sentences(entry):
     return sentences
 
 
-def get_overall_level(entry):
-    scores_list = []
+def get_filtered_words(entry):
     pattern = re.compile(r'[A-Za-z]+')
     words = re.findall(pattern, entry)
 
@@ -33,10 +32,7 @@ def get_overall_level(entry):
         if word not in english_stopwords:
             filtered_words.append((word, count))
     
-    scores = analyzer.polarity_scores(entry)
-    scores_list.append(scores)
-    
-    return scores_list
+    return filtered_words
 
 
 def get_sentence_levels(entry):
@@ -46,3 +42,34 @@ def get_sentence_levels(entry):
         score = analyzer.polarity_scores(sentence)
         scores_list.append(score)
     return scores_list
+
+
+def get_words(score):
+    very_positive = ["overjoyed", "ecstatic", "thrilled", "delighted", "elated", "jubilant"]
+    positive = ["happy", "cheerful", "joyful", "optimistic", "encouraged", "pleased", "upbeat", "satisfied"]
+    negative = ["sad", "upset", "worried", "frustrated", "discouraged", "disappointed", "downcast", "gloomy", "uneasy"]
+    very_negative = ["devastated", "miserable", "depressed", "melancholy", "outraged", "resentful"]
+    neutral = ["calm", "steady", "indifferent", "composed", "neutral", "matter-of-fact", "relaxed"]
+
+    if (score >= 0.5):
+        return choice(very_positive)
+    elif (score >= 0.4):
+        return choice(positive)
+    elif (score <= -0.5):
+        return choice(very_negative)
+    elif (score <= -0.4):
+        return choice(negative)
+    else:
+        return choice(neutral)
+    
+def get_emojis(score):
+    if (score >= 0.5):
+        return choice(["😆✨🥳🌈", "🌟🌸😊💫", "🌞🌈💖😆", "✨🦄🥳🌟", "💎🌞🎉🤩", "😍🌟🤩🎊", "☀️💫😇😍"])
+    elif (score >= 0.4):
+        return choice(["🤗👍🙂🍀", "🌻🌟💖😎", "😊✨🌸🌅", "😌🌹🌞💫", "🌟🍀😄🌼", "🏞️😌💫😎"])
+    elif (score <= -0.5):
+        return choice(["⚡😡💔🔥", "☠️😫🩸🕯️", "🌋💀😫⚡", "😠🔥💔🪦", "💔🌪️😤🕯️"])
+    elif (score <= -0.4):
+        return choice(["🥀🙁🌧️🌫️", "🕯️💀😕🌑", "🌧️📉😞🕸️", "😔🌙🌧️🕯️", "😓🌩️😟🌫️", "🌧️😔🥀💧"])
+    else:
+        return choice(["💤😐⚖️🌙", "🌔🧘🌀✨", "🕯️😴📖🌌", "😶🔮🌗📜", "🤔🌙🌀😐"])

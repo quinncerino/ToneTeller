@@ -1,6 +1,8 @@
 import streamlit as st
 import plotly.express as px
-from backend import get_overall_level, get_sentence_levels
+from backend import get_sentence_levels, get_words, get_emojis
+import pandas as pd
+
 
 st.title("ToneTeller")
 st.header("I will analyze the tone of your text 🔮✨")
@@ -8,63 +10,69 @@ st.header("I will analyze the tone of your text 🔮✨")
 text = st.text_area("Enter text here: ")
 
 if text:
-    scores_list = get_overall_level(text)
-    print(scores_list)
 
-    positivity = []
-    for item in scores_list:
-        positivity.append(item['pos'])
-    st.subheader(f"Positivity: {positivity[0]}")
-
-    negativity = []
-    for item in scores_list:
-        negativity.append(item['neg'])
-    st.subheader(f"Negativity: {negativity[0]}")
+    try:
+        sentences_scores = get_sentence_levels(text)[1:]
+        count = [i for i in range(len(sentences_scores))]
+        emoji = ["✨🔮✨" for i in count]
 
 
-    
-    
+        overall = [score['compound'] for score in sentences_scores]
+        overall_count = [(i+1) for i in range(len(overall))]
+        tones = [get_words(score) for score in overall]
+        emotions_emojis = [get_emojis(score) for score in overall]
+
+        st.divider()
+
+        st.header("✨💫🔮 Your Sentiment Fortune: 🔮🌙✨")
+
+        #st.divider()
+        st.subheader("📊 Overall Sentiment by Sentence")
+        col5, middle2, col6 = st.columns([0.5, 2, 0.5])
+        with middle2:
+            tones_graph = px.bar(x = overall_count, y = overall, text = emoji, hover_name = [tones[i]+emotions_emojis[i] for i in range(len(overall))], labels = {"x": "Sentence Number", "y": "Compound Sentiment"})
+            st.plotly_chart(tones_graph, width='stretch')
 
 
-    #try:
-    sentences_scores = get_sentence_levels(text)
-    count = [i for i in range(len(sentences_scores))]
+        st.divider()
+        st.subheader("📋 Tone Analysis Table")
+        col3, middle1, col4 = st.columns([0.5, 2, 0.5])
+        with middle1:
+            df = pd.DataFrame({"Sentence #": overall_count, "Compound Score": overall, "Tone": tones, "Emotions": emotions_emojis})
+            st.dataframe(df, width='stretch', hide_index = True)
+
+        
+        st.divider() 
+        st.subheader("📈 Positivity vs Negativity 📉 Trends")
+        col1, middle, col2 = st.columns([2, 0.5, 2])
+
+        s_positivity = []
+        #i = 0
+        for item in sentences_scores:
+            s_positivity.append(item['pos'])
+        #st.subheader(f"Positivity: {s_positivity[i]}")
+
+        s_negativity = []
+        for item in sentences_scores:
+            s_negativity.append(item['neg'])
+        #st.subheader(f"Negativity: {s_negativity[i]}")
+        #i += 1
+        
+        
+        with col1:
+            graph = px.line(x = count, y = s_positivity, labels = {"x": "Sentence Number", "y": "Positivity"}, title = "Positivity 😄😍🤩😁🎉")
+            st.plotly_chart(graph, width='stretch')
+
+        with col2:
+            graph2 = px.line(x = count, y = s_negativity, labels = {"x": "Sentence Number", "y": "Negativity"}, title = "Negativity 😞💔😢😡😤")
+            st.plotly_chart(graph2, width='stretch')
 
 
-    overall = [score['compound'] for score in sentences_scores]
-    overall_count = [i for i in range(len(overall))]
-
-    col3, middle1, col4 = st.columns([0.5, 2, 0.5])
-
-    with middle1:
-        overall_graph = px.bar(x = overall_count, y = overall, labels = {"x": "Sentence Number", "y": "Emotion Level"})
-        st.plotly_chart(overall_graph, use_container_width=True)
-
-
-    col1, middle, col2 = st.columns([2, 0.5, 2])
-
-    s_positivity = []
-    #i = 0
-    for item in sentences_scores:
-        s_positivity.append(item['pos'])
-    #st.subheader(f"Positivity: {s_positivity[i]}")
-
-    s_negativity = []
-    for item in sentences_scores:
-        s_negativity.append(item['neg'])
-    #st.subheader(f"Negativity: {s_negativity[i]}")
-    #i += 1
-    
-    
-    with col1:
-        graph = px.line(x = count, y = s_positivity, labels = {"x": "Sentence Number", "y": "Positivity"})
-        st.plotly_chart(graph, use_container_width=True)
-
-    with col2:
-        graph2 = px.line(x = count, y = s_negativity, labels = {"x": "Sentence Number", "y": "Negativity"})
-        st.plotly_chart(graph2, use_container_width=True)
-    # except:
-    #     st.error("Make sure you use punctuation to end your sentence(s).")
+        # st.subheader("Most commonly used word:")
+        # st.caption("(Excluding English stopwords)")
+        # st.subheader()
+    except:
+        st.error("Make sure you use punctuation to end your sentence(s).")
 
 
 
