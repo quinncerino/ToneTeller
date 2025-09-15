@@ -1,6 +1,6 @@
 import streamlit as st
 import plotly.express as px
-from backend import get_sentence_levels, get_words, get_emojis
+from backend import get_sentence_levels, get_words, get_emojis, get_filtered_words
 import pandas as pd
 
 
@@ -29,17 +29,17 @@ if text:
         #st.divider()
         st.subheader("📊 Overall Sentiment by Sentence")
         col5, middle2, col6 = st.columns([0.5, 2, 0.5])
-        with middle2:
-            tones_graph = px.bar(x = overall_count, y = overall, text = emoji, hover_name = [tones[i]+emotions_emojis[i] for i in range(len(overall))], labels = {"x": "Sentence Number", "y": "Compound Sentiment"})
-            st.plotly_chart(tones_graph, width='stretch')
+       #with middle2:
+        tones_graph = px.bar(x = overall_count, y = overall, text = emoji, hover_name = [tones[i]+emotions_emojis[i] for i in range(len(overall))], labels = {"x": "Sentence Number", "y": "Compound Sentiment"})
+        st.plotly_chart(tones_graph, width='stretch')
 
 
         st.divider()
-        st.subheader("📋 Tone Analysis Table")
+        st.subheader("🗂️ Tone Analysis Table")
         col3, middle1, col4 = st.columns([0.5, 2, 0.5])
-        with middle1:
-            df = pd.DataFrame({"Sentence #": overall_count, "Compound Score": overall, "Tone": tones, "Emotions": emotions_emojis})
-            st.dataframe(df, width='stretch', hide_index = True)
+        #with middle1:
+        df = pd.DataFrame({"Sentence #": overall_count, "Compound Score": overall, "Tone": tones, "Emotions": emotions_emojis})
+        st.dataframe(df, width='stretch', hide_index = True)
 
         
         st.divider() 
@@ -67,10 +67,15 @@ if text:
             graph2 = px.line(x = count, y = s_negativity, labels = {"x": "Sentence Number", "y": "Negativity"}, title = "Negativity 😞💔😢😡😤")
             st.plotly_chart(graph2, width='stretch')
 
+        st.divider()
+        st.subheader("📋 Word Frequency Analysis")
+        st.caption("(Excluding English stopwords)")
 
-        # st.subheader("Most commonly used word:")
-        # st.caption("(Excluding English stopwords)")
-        # st.subheader()
+        words = [item[0] for item in get_filtered_words(text.lower())]
+        counts = [item[1] for item in get_filtered_words(text.lower())]
+        df2 = pd.DataFrame({"Word": words, "Frequency": counts})
+        st.dataframe(df2, width='stretch', hide_index = True)
+
     except:
         st.error("Make sure you use punctuation to end your sentence(s).")
 
