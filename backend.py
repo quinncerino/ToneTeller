@@ -1,7 +1,11 @@
 import re
+import nltk
 from nltk.corpus import stopwords
 from nltk.sentiment import SentimentIntensityAnalyzer
 from random import choice
+
+nltk.download("stopwords", quiet=True)
+nltk.download("vader_lexicon", quiet=True)
 
 english_stopwords = stopwords.words("english")
 analyzer = SentimentIntensityAnalyzer()
