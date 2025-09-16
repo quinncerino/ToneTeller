@@ -3,6 +3,7 @@ import plotly.express as px
 from backend import get_sentence_levels, get_words, get_emojis, get_filtered_words
 import pandas as pd
 
+st.set_page_config(layout = 'wide')
 
 st.title("ToneTeller")
 st.header("I will analyze the tone of your text 🔮✨")
@@ -13,7 +14,7 @@ if text:
 
     try:
         sentences_scores = get_sentence_levels(text)[1:]
-        count = [i for i in range(len(sentences_scores))]
+        count = [(i + 1) for i in range(len(sentences_scores))]
         emoji = ["✨🔮✨" for i in count]
 
 
